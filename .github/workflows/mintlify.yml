@@ -1,0 +1,56 @@
+name: Mintlify Auto-Deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  repository_dispatch:
+    types: [thermacoreapp-update]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '19'
+
+      - name: Install Mintlify CLI
+        run: npm i -g mintlify
+
+      - name: Deploy to Mintlify
+        run: mintlify deploy
+        env:
+          MINTLIFY_API_KEY: ${{ secrets.MINTLIFY_API_KEY }}
+
+  # Webhook handler for updates from steynzville/thermacoreapp
+  handle-thermacoreapp-update:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'repository_dispatch' && github.event.action == 'thermacoreapp-update'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '19'
+
+      - name: Install Mintlify CLI
+        run: npm i -g mintlify
+
+      - name: Update documentation from thermacoreapp
+        run: |
+          echo "Thermacoreapp repository updated: ${{ github.event.client_payload.ref }}"
+          echo "Commit SHA: ${{ github.event.client_payload.sha }}"
+          # Add custom logic here to sync docs from thermacoreapp if needed
+
+      - name: Deploy updated docs
+        run: mintlify deploy
+        env:
+          MINTLIFY_API_KEY: ${{ secrets.MINTLIFY_API_KEY }}

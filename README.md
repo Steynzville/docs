@@ -1,36 +1,82 @@
-# Mintlify Starter Kit
+# ThermaCore App Documentation
 
-Use the starter kit to get your docs deployed and ready to customize.
+This repository contains the documentation for the ThermaCore App, automatically synchronized from the [steynzville/thermacoreapp](https://github.com/steynzville/thermacoreapp) repository using Mintlify.
 
-Click the green **Use this template** button at the top of this repo to copy the Mintlify starter kit. The starter kit contains examples with
+## Features
 
-- Guide pages
-- Navigation
-- Customizations
-- API reference pages
-- Use of popular components
+- **Automatic Sync**: Documentation is automatically updated when commits and merged PRs occur in the thermacoreapp repository
+- **Mintlify Integration**: Built with Mintlify for beautiful, interactive documentation
+- **GitHub Actions**: Automated deployment and synchronization workflows
+- **Live Preview**: Local development server for testing changes
 
-**[Follow the full quickstart guide](https://starter.mintlify.com/quickstart)**
+## Quick Start
+
+The Mintlify CLI is already installed and configured for this repository.
 
 ## Development
 
-Install the [Mintlify CLI](https://www.npmjs.com/package/mint) to preview your documentation changes locally. To install, use the following command:
+The [Mintlify CLI](https://www.npmjs.com/package/mint) is installed and configured. To preview documentation changes locally:
 
-```
+```bash
+# Install Mintlify CLI (if not already installed)
 npm i -g mint
-```
 
-Run the following command at the root of your documentation, where your `docs.json` is located:
-
-```
+# Start development server
 mint dev
 ```
 
 View your local preview at `http://localhost:3000`.
 
-## Publishing changes
+## Automatic Synchronization
 
-Install our GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app) to propagate changes from your repo to your deployment. Changes are deployed to production automatically after pushing to the default branch.
+This documentation is automatically synchronized from the `steynzville/thermacoreapp` repository:
+
+- **Triggers**: Commits and merged PRs in the thermacoreapp repository
+- **Paths Monitored**: `docs/**`, `README.md`, `API.md`, and other markdown files
+- **Workflow**: GitHub Actions automatically sync content and deploy updates
+
+### Manual Sync
+
+You can manually trigger documentation synchronization:
+
+1. Go to the **Actions** tab in this repository
+2. Select "Sync Documentation from ThermacoreApp"
+3. Click "Run workflow"
+4. Specify the source repository and branch/commit
+
+## Setup for ThermacoreApp Repository
+
+To enable automatic documentation updates from the thermacoreapp repository, see the [Webhook Setup Guide](./webhooks/setup.md).
+
+## Deployment
+
+### Automatic Deployment
+
+- **GitHub Actions**: Automatically deploys when changes are pushed to the main branch
+- **Mintlify Integration**: Configure `MINTLIFY_API_KEY` secret for direct deployment
+- **GitHub App**: Install the [Mintlify GitHub app](https://dashboard.mintlify.com/settings/organization/github-app) for seamless integration
+
+### Manual Deployment
+
+If configured with Mintlify API key:
+
+```bash
+mintlify deploy
+```
+
+## Configuration
+
+### Repository Structure
+
+- `docs.json` - Mintlify configuration file
+- `.github/workflows/` - Automated deployment and sync workflows
+- `webhooks/` - Integration setup guides
+- Documentation content organized in folders with MDX files
+
+### Environment Variables
+
+- `MINTLIFY_API_KEY` - (Optional) For direct deployment to Mintlify
+- `DOCS_REPO_TOKEN` - For thermacoreapp repository to trigger documentation updates
 
 ## Need help?
 
