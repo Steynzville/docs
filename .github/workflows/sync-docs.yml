@@ -1,0 +1,106 @@
+name: Sync Documentation from ThermacoreApp
+
+on:
+  repository_dispatch:
+    types: [sync-docs]
+  workflow_dispatch:
+    inputs:
+      source_repo:
+        description: 'Source repository (e.g., steynzville/thermacoreapp)'
+        required: true
+        default: 'steynzville/thermacoreapp'
+      ref:
+        description: 'Git reference (branch, tag, or commit)'
+        required: true
+        default: 'main'
+
+jobs:
+  sync-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout docs repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '19'
+
+      - name: Install Mintlify CLI
+        run: PUPPETEER_SKIP_DOWNLOAD=true npm i -g mintlify
+
+      - name: Checkout source repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.inputs.source_repo || github.event.client_payload.repository || 'steynzville/thermacoreapp' }}
+          ref: ${{ github.event.inputs.ref || github.event.client_payload.ref || 'main' }}
+          path: source-repo
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract documentation from source
+        run: |
+          echo "Extracting documentation from thermacoreapp..."
+          
+          # Create a docs extraction script
+          if [ -d "source-repo/docs" ]; then
+            echo "Found docs directory in source repository"
+            # Copy documentation files if they exist
+            cp -r source-repo/docs/* . 2>/dev/null || echo "No docs to copy"
+          fi
+          
+          if [ -f "source-repo/README.md" ]; then
+            echo "Found README.md in source repository"
+            # You can process the README or other files as needed
+          fi
+          
+          echo "Documentation extraction completed"
+
+      - name: Update docs.json with source repository info
+        run: |
+          # Update docs.json to include reference to source repository
+          if [ -f "docs.json" ]; then
+            # Create a backup
+            cp docs.json docs.json.bak
+            
+            # Add source repository information to docs.json
+            node -e "
+              const fs = require('fs');
+              const config = JSON.parse(fs.readFileSync('docs.json', 'utf8'));
+              
+              // Add source repository metadata
+              config.metadata = config.metadata || {};
+              config.metadata.sourceRepository = '${{ github.event.inputs.source_repo || github.event.client_payload.repository || 'steynzville/thermacoreapp' }}';
+              config.metadata.lastSync = new Date().toISOString();
+              config.metadata.sourceRef = '${{ github.event.inputs.ref || github.event.client_payload.ref || 'main' }}';
+              
+              fs.writeFileSync('docs.json', JSON.stringify(config, null, 2));
+            "
+            
+            echo "Updated docs.json with source repository metadata"
+          fi
+
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          if git diff --quiet && git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git add .
+            git commit -m "Sync documentation from ${{ github.event.inputs.source_repo || github.event.client_payload.repository || 'steynzville/thermacoreapp' }}"
+            git push
+          fi
+
+      - name: Deploy to Mintlify (if configured)
+        run: |
+          if [ -n "$MINTLIFY_API_KEY" ]; then
+            echo "Deploying to Mintlify..."
+            mintlify deploy
+          else
+            echo "MINTLIFY_API_KEY not configured, skipping deployment"
+          fi
+        env:
+          MINTLIFY_API_KEY: ${{ secrets.MINTLIFY_API_KEY }}
