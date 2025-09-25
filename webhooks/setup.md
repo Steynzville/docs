@@ -8,8 +8,9 @@ This directory contains configuration and scripts for setting up automatic docum
 
 In the `Steynzville/docs` repository, add the following secrets:
 
-- `MINTLIFY_API_KEY`: Your Mintlify API key (optional, for direct deployment)
 - `GITHUB_TOKEN`: Already available, used for accessing the thermacoreapp repository
+
+Note: The sync workflow only synchronizes documentation and does not deploy to Mintlify. For Mintlify deployment, use the separate `mintlify.yml` workflow which requires the `MINTLIFY_API_KEY` secret.
 
 ### 2. Add Webhook to ThermacoreApp Repository
 
@@ -79,7 +80,7 @@ You can also manually trigger documentation synchronization by:
    - Extracts documentation from the source repository
    - Updates the docs configuration
    - Commits any changes
-   - Optionally deploys to Mintlify
+   - Pushes the updated documentation to the docs repository
 
 ## File Structure
 

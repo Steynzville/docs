@@ -31,9 +31,6 @@ jobs:
         with:
           node-version: '19'
 
-      - name: Install Mintlify CLI
-        run: PUPPETEER_SKIP_DOWNLOAD=true npm i -g mintlify
-
       - name: Checkout source repository
         uses: actions/checkout@v4
         with:
@@ -102,13 +99,3 @@ jobs:
             git push
           fi
 
-      - name: Deploy to Mintlify (if configured)
-        run: |
-          if [ -n "$MINTLIFY_API_KEY" ]; then
-            echo "Deploying to Mintlify..."
-            mintlify deploy
-          else
-            echo "MINTLIFY_API_KEY not configured, skipping deployment"
-          fi
-        env:
-          MINTLIFY_API_KEY: ${{ secrets.MINTLIFY_API_KEY }}
